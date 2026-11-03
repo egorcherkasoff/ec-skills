@@ -1,0 +1,14 @@
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*~
+.idea/
+.vscode/
+*.sublime-*
+
+# Local agent state
+.opencode/
+.claude/

@@ -1,0 +1,13 @@
+{
+  "tooltip": "{count} ticks",
+  "panel.title": "Hello",
+  "panel.tick": "Service tick: {tick}",
+  "panel.hint": "The label is configured on the bar widget.",
+  "panel.close": "Close",
+  "settings.refresh_ms.label": "Refresh interval (ms)",
+  "settings.refresh_ms.description": "How often the service publishes a new tick.",
+  "settings.label.label": "Label",
+  "settings.label.description": "Text shown on the bar.",
+  "settings.glyph.label": "Glyph",
+  "settings.show_glyph.label": "Show glyph"
+}

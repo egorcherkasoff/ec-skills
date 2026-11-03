@@ -1,0 +1,55 @@
+id = "me/hello"
+name = "Hello"
+version = "1.0.0"
+plugin_api = 3
+author = "me"
+license = "MIT"
+description = "A minimal Noctalia v5 starter plugin with a bar widget, panel, and service."
+tags = ["demo"]
+icon = "puzzle"
+
+# Plugin-level settings are seeded into every entry.
+[[setting]]
+key = "refresh_ms"
+type = "int"
+label_key = "settings.refresh_ms.label"
+description_key = "settings.refresh_ms.description"
+default = 1000
+min = 250
+max = 60000
+
+[[widget]]
+id = "hello"
+entry = "widget.luau"
+
+  # Widget settings belong to this bar widget instance.
+  [[widget.setting]]
+  key = "label"
+  type = "string"
+  label_key = "settings.label.label"
+  description_key = "settings.label.description"
+  default = "Hello"
+
+  [[widget.setting]]
+  key = "glyph"
+  type = "glyph"
+  label_key = "settings.glyph.label"
+  default = "puzzle"
+
+  [[widget.setting]]
+  key = "show_glyph"
+  type = "bool"
+  label_key = "settings.show_glyph.label"
+  default = true
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 360
+height = 220
+placement = "floating"
+position = "center"
+
+[[service]]
+id = "ticker"
+entry = "service.luau"
