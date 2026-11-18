@@ -22,7 +22,7 @@ Creating, reviewing, and debugging [RobCo Patcher](https://www.nexusmods.com/fal
 
 ### Umbriel
 
-Configuring the [Umbriel](https://docs.noctalia.dev/umbriel/) Wayland compositor from the Noctalia project: `config.toml` structure, outputs, keybinds and actions, input devices, appearance, animations, GLSL effects, layouts, workspaces, window/layer rules, scratchpads, and IPC.
+Configuring the [Umbriel](https://docs.noctalia.dev/umbriel/) Wayland compositor from the Noctalia project: `config.toml` structure, installation, outputs, game streaming, keybinds and actions, input devices, appearance, animations, GLSL effects, layouts, workspaces and overview, window/layer rules, scratchpads, security (sandboxed clients, session lock, input capture, global shortcuts), and IPC.
 
 ## Installation
 

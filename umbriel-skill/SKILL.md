@@ -1,6 +1,6 @@
 ---
 name: Umbriel
-description: Configure the Umbriel Wayland compositor (Noctalia project) — config.toml structure, outputs, keybinds, actions, input, appearance, animations, effects/shaders, layouts, workspaces, window/layer rules, scratchpads, and IPC
+description: Configure the Umbriel Wayland compositor (Noctalia project) — config.toml structure, installation, outputs, game streaming, keybinds and actions, input devices, appearance, animations, effects/shaders, layouts, workspaces and overview, window/layer rules, scratchpads, security (sandboxed clients, session lock, input capture, global shortcuts), and IPC
 ---
 
 # Umbriel
@@ -16,19 +16,24 @@ single TOML configuration that live-reloads on save.
 2. The user config is `~/.config/umbriel/config.toml`. Never regenerate it wholesale;
    make targeted edits and preserve unrelated settings.
 3. After editing, validate: `umbriel config validate` (exits nonzero on problems and
-   prints file/line/column for every diagnostic).
+   prints file/line/column for every diagnostic; `--json` for machine-readable output).
 4. Saving the file triggers a live reload of most options. Errors appear in an
    on-screen panel and the last working configuration stays active.
-5. Restart-required options: `general.autostart`, `general.xwayland`,
-   `general.xwayland_native_resolution`, any `[drm]` key, any `[environment]` change.
-   Long-running apps that survive a restart need a full relaunch after environment changes.
-6. Unsure a key exists or what type it takes? Run `umbriel config schema --json` on the
+5. Runtime overrides need no file edit: `umbriel config set <dotted.key> <value>`,
+   `config get [--all]`, `config unset` — in-memory, survive reloads, refused when
+   they would introduce any error or warning.
+6. Restart-required options: `general.autostart`, `general.xwayland`,
+   `general.xwayland_native_resolution`, `general.xwayland_xsettings`, any `[drm]` key,
+   any `[environment]` change. Long-running apps that survive a restart need a full
+   relaunch after environment changes.
+7. Unsure a key exists or what type it takes? Run `umbriel config schema --json` on the
    user's machine — it lists every accepted key with path, type, range, accepted values,
-   format, and built-in default.
-7. Inspect live state with `umbriel windows`, `outputs`, `workspaces`, `layers`,
-   `effects`, `color`, `tearing`, `keyboard-layouts`, `submap` (each accepts `--json`);
-   run actions with `umbriel msg <action>`.
-8. Official docs: <https://docs.noctalia.dev/umbriel/>. The project is young and options
+   format, and built-in default. App-keyed maps (`[global_shortcuts]`, `[output.<name>]`)
+   list only their sub-keys, not instances.
+8. Inspect live state with `umbriel windows`, `focused-window`, `outputs`, `workspaces`,
+   `layers`, `effects`, `color`, `tearing`, `keyboard-layouts`, `submap` (each accepts
+   `--json`); run actions with `umbriel msg <action>`.
+9. Official docs: <https://docs.noctalia.dev/umbriel/>. The project is young and options
    change between releases — when this skill and the installed binary disagree, the
    installed binary wins; fetch the relevant docs page to confirm.
 
@@ -36,34 +41,40 @@ single TOML configuration that live-reloads on save.
 
 | Topic | File |
 | --- | --- |
-| Config file, reload, includes, general/env/events/drm, install & logs | `references/configuration.md` |
-| Monitors: `[output.<name>]`, modes, scale, VRR/HDR/10-bit, virtual outputs, DPMS | `references/outputs.md` |
-| `[keybinds]`, chord syntax, submaps, hot corners, repeat/cooldown | `references/keybinds.md` |
+| Installation, distro packages, manual build, session startup, screen-sharing portal, logs | `references/installation.md` |
+| Config file, reload/diagnostics, runtime overrides, includes, `[general]`/`[drm]`/`[environment]`/`[events]`/`[screencast]`/`[global_shortcuts]` | `references/configuration.md` |
+| Monitors: `[output.<name>]`, modes, scale, VRR/HDR/10-bit, color profile, virtual outputs, VR leases, DPMS | `references/outputs.md` |
+| Game streaming: Sunshine→Moonlight over a virtual output, stream window rules | `references/streaming.md` |
+| `[keybinds]`, chord syntax, release bindings, submaps, hot corners, repeat/cooldown | `references/keybinds.md` |
 | Every action usable in keybinds / `umbriel msg` / hot corners | `references/actions.md` |
 | Socket protocol, CLI queries, event stream, audio input feed | `references/ipc.md` |
 | `[input]`: keyboard, touchpad, mouse, tablet, touch, cursor, focus | `references/input.md` |
-| `[colors]`, `[appearance]`, tab bar, blur, shadow | `references/appearance.md` |
-| `[animation]`: event tables, curves/springs, custom effects, drag physics | `references/animation.md` |
+| `[colors]`, `[appearance]`, title bar, tab bar, blur, shadow | `references/appearance.md` |
+| `[animation]`: event tables, curves/springs, custom effects, drag physics, workspace reveal | `references/animation.md` |
 | `[effects]`: bundled shaders, presets, pools, runtime selection, writing GLSL | `references/effects.md` |
-| `[layout]`: scrolling/dwindle/master/stacking, tab groups, struts, sizing, minimize | `references/layout.md` |
-| Workspaces (`[[workspace]]`, models, selectors) and `[overview]` | `references/workspaces.md` |
-| `[[window_rule]]`, `[[layer_rule]]`, `[[security_context_rule]]`, session lock | `references/rules.md` |
-| `[[scratchpad]]` definitions, actions, `spawn_when_empty` | `references/scratchpads.md` |
+| `[layout]`: scrolling/dwindle/master/stacking, drop zones, tab groups, struts, sizing, minimize | `references/layout.md` |
+| Workspaces (`[[workspace]]`, models, selectors, moving between outputs) | `references/workspaces.md` |
+| Workspace overview: `[overview]`, navigation, shortcut badges | `references/workspaces-overview.md` |
+| `[[window_rule]]` matching, opening/size/while-open settings | `references/window-rules.md` |
+| `[[layer_rule]]` layer-shell rules | `references/layer-rules.md` |
+| Security: sandboxed clients, `[[security_context_rule]]`, session lock, input capture, global-shortcut approval | `references/security.md` |
+| `[[scratchpad]]` definitions, actions, launch destination, `spawn_when_empty` | `references/scratchpads.md` |
 
 ## Top-level config map
 
 ```toml
-[general]         # autostart, mod_key, xwayland, cheatsheet...
-[drm]             # GPU exclusions (restart required)
-[environment]     # env vars for the session (restart required)
+[general]         # autostart, mod_key, xwayland (+xsettings/primary output), nvidia_sync_workaround, attach_modal_dialogs...
+[drm]            # GPU exclusions (restart required)
+[environment]    # env vars for the session (restart required)
 [events]          # lid_close / lid_open commands
 [screencast]      # dynamic-target confirmation
+[global_shortcuts."<app-id>"]  # per-app shortcut overrides
 [include]         # required includes; [include.optional] for optional
 [output.<name>]    # per connector ("DP-1") or "<make> <model> <serial>"
 [[workspace]]     # per-workspace rules / persistent names
 [workspaces]      # back_and_forth, empty_above
 [overview]        # zoom, scroll factors, shortcut badges
-[keybinds]        # "Chord" = "action" or { action = "...", ... }
+[keybinds]        # "Chord" = "action" or { action = "...", release = "...", ... }
 [hot_corners.top_left] # + top_right / bottom_left / bottom_right
 [input]           # + [input.keyboard|touchpad|mouse|tablet|touch|cursor|focus|drag_edge_scroll]
                   # + [[input.device]] per-device overrides
@@ -73,7 +84,7 @@ single TOML configuration that live-reloads on save.
 [animation]       # + [animation.<event>] tables, [animation.beziers], [animation.springs]
 [effects]         # + [effects.preset.<name>], [effects.pool.<name>]
 [[window_rule]]   # per-app behavior
-[[layer_rule]]    # layer-shell blur etc.
+[[layer_rule]]    # layer-shell blur/dim etc.
 [[scratchpad]]    # named scratchpads
 [[security_context_rule]] # sandboxed-client protocol grants
 ```
@@ -84,6 +95,9 @@ single TOML configuration that live-reloads on save.
 - Action arguments are separate words inside the bind string, never colon-joined:
   `"spawn kitty"`, `"workspace-switch 3"`, not `"spawn:kitty"`. Flags `--output`,
   `--window`, `--name` qualify some actions; quotes group words with spaces.
+- The IPC action wire format is `{"cmd":"action","action":"...","<field>":...}` — the
+  old `{"cmd":"msg"}` request is gone; the CLI `umbriel msg <action>` still works.
+- `input.focus.follows_mouse` is an enum `"off"|"sloppy"|"always"`, not a boolean.
 - Including a bundled effect's `effect.toml` only registers the preset; you must also
   select it (`[effects] border = "pulse"` or `[animation.windows_in] effect = "reveal"`).
 - Defining any `[[scratchpad]]` removes the implicit `default` scratchpad; every
